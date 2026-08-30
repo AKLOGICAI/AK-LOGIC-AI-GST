@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+Allow: /store/
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /docs
+
+Sitemap: https://gst.ak-logicai.in/sitemap.xml
+Sitemap: https://gst.ak-logicai.in/sitemap-stores.xml
+Sitemap: https://gst-v1p5.onrender.com/api/public/sitemap-stores.xml

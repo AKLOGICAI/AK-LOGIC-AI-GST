@@ -1,0 +1,100 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+    <!-- Prevent iOS auto-linking phone-number-looking text (e.g. GSTINs),
+         which otherwise renders as a tappable blue link and shifts styling. -->
+    <meta name="format-detection" content="telephone=no" />
+    <!-- Warm up the font-host connection early so the @font-face requests in
+         index.css (which fire as soon as the CSS is parsed) don't pay a full
+         DNS+TLS handshake on top of the download. -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <!-- id="app-manifest": main.tsx swaps this link's href to
+         /manifest-admin.json when the current route is under /admin, so
+         "Add to Home Screen" from the admin panel installs an app that
+         opens straight to /admin instead of the merchant root ("/"). -->
+    <link rel="manifest" href="/manifest.json" id="app-manifest" />
+    <title>AK-LOGIC AI GST — GST Billing, Online Stores & Merchant Commerce</title>
+    <meta name="description" content="AK-LOGIC AI GST — GST billing, online stores & merchant commerce by AK-LOGIC AI. Scan QR, request, approve & generate compliant GST invoices instantly." />
+    <link rel="canonical" href="https://www.ak-logicai.in/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="AK-LOGIC AI GST" />
+    <meta property="og:title" content="AK-LOGIC AI GST — GST Billing, Online Stores & Merchant Commerce" />
+    <meta property="og:description" content="AK-LOGIC AI GST — GST billing, online stores & merchant commerce by AK-LOGIC AI. Scan QR, request, approve & generate compliant GST invoices instantly." />
+    <meta property="og:url" content="https://www.ak-logicai.in/" />
+    <meta property="og:image" content="https://www.ak-logicai.in/icon-512.png" />
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="AK-LOGIC AI GST — GST Billing, Online Stores & Merchant Commerce" />
+    <meta name="twitter:description" content="AK-LOGIC AI GST — GST billing, online stores & merchant commerce by AK-LOGIC AI. Scan QR, request, approve & generate compliant GST invoices instantly." />
+    <meta name="twitter:image" content="https://www.ak-logicai.in/icon-512.png" />
+
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#0a0a12" />
+
+    <!-- JSON-LD Structured Data: Organization & SoftwareApplication -->
+    <script type="application/ld+json">
+      [
+        {
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          "name": "AK-LOGIC AI",
+          "url": "https://www.ak-logicai.in/",
+          "logo": "https://www.ak-logicai.in/icon-512.png",
+          "description": "AK-LOGIC AI is a technology company building next-generation GST billing and merchant commerce solutions."
+        },
+        {
+          "@context": "https://schema.org",
+          "@type": "SoftwareApplication",
+          "name": "AK-LOGIC AI GST",
+          "applicationCategory": "BusinessApplication",
+          "operatingSystem": "Web, Mobile, Desktop",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "INR"
+          },
+          "publisher": {
+            "@type": "Organization",
+            "name": "AK-LOGIC AI"
+          },
+          "description": "GST billing, instant invoicing, online merchant storefronts, and verified merchant B2B commerce platform."
+        }
+      ]
+    </script>
+    <script>
+      (function() {
+        try {
+          var isDesktop = localStorage.getItem('aklogic_desktop_view') === 'true';
+          var vMeta = document.querySelector('meta[name="viewport"]');
+          if (!isDesktop) {
+            document.documentElement.classList.add('force-mobile-view');
+            document.documentElement.classList.remove('desktop-view-active');
+          } else {
+            document.documentElement.classList.remove('force-mobile-view');
+            document.documentElement.classList.add('desktop-view-active');
+            if (vMeta) {
+              vMeta.setAttribute('content', 'width=1180, initial-scale=0.35, user-scalable=yes');
+            }
+          }
+        } catch(e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

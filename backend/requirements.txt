@@ -1,0 +1,22 @@
+fastapi==0.115.0
+uvicorn[standard]==0.30.6
+sqlalchemy==2.0.34
+asyncpg>=0.29.0
+alembic==1.13.2
+pydantic==2.9.0
+pydantic-settings==2.4.0
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+# Pinned: passlib 1.7.4's bcrypt backend self-test is incompatible with
+# bcrypt>=4.1 (raises "password cannot be longer than 72 bytes" on
+# startup/first use, breaking every hash_mpin()/verify_mpin() call — i.e.
+# every merchant register and login). See backend/app/security.py.
+bcrypt==4.0.1
+httpx==0.27.2
+pywebpush==2.0.1
+# Explicit dependency (previously only pulled in transitively via
+# python-jose[cryptography]) — field_crypto.py imports AESGCM directly
+# from this package for bank-detail field encryption, so it needs to be
+# a first-class, version-pinned requirement rather than relying on
+# another package's extras to keep providing it.
+cryptography>=42.0.0

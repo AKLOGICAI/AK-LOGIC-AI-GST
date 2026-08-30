@@ -1,0 +1,509 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@300;400;500;600;700&family=Source+Sans+3:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-navy: #1E3A5F;
+  --color-blue: #2563EB;
+  --color-success: #059669;
+  --color-slate-bg: #F8FAFC;
+  --color-slate-text: #0F172A;
+  --color-border: #E4E7EB;
+  --color-error: #DC2626;
+
+  --color-ink: #0b1329;
+  --color-ink-2: #0f1a36;
+  --color-panel: #132247;
+  --color-panel-2: #182b59;
+  --color-line: #223766;
+  --color-mist: #94a3b8;
+  --color-mist-2: #64748b;
+  --color-ivory: #f8fafc;
+
+  --color-gold: #e2b857;
+  --color-gold-deep: #b88d32;
+  --color-aqua: #2563eb;
+  --color-aqua-deep: #1d4ed8;
+  --color-violet: #6366f1;
+  --color-rose: #dc2626;
+  --color-emerald: #059669;
+  --color-amber: #d97706;
+
+  --font-display: 'Lexend', -apple-system, sans-serif;
+  --font-body: 'Source Sans 3', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  /* ── Canonical easing tokens (DESIGN-SYSTEM-PLAN §6 Phase 1) ───────────
+     One strong ease-out used everywhere instead of per-component ad-hoc
+     curves. Springs (framer-motion) don't use these — they're duration-
+     less by design — but CSS transitions reference them via var(). */
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+  --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+}
+
+* {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Remove the gray flash Android/iOS show on every tap; buttons/links
+     already have their own active-state feedback (active:scale-[0.98] etc). */
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Hide native number input spin buttons and ensure dark background on autofill */
+input[type="number"]::-webkit-outer-spin-button,
+input[type="number"]::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-text-fill-color: var(--color-ivory) !important;
+  -webkit-box-shadow: 0 0 0px 1000px #0c1322 inset !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+html {
+  scroll-behavior: smooth;
+  /* Stop iOS Safari's rubber-band scroll from dragging the whole page when a
+     modal/drawer's inner content is already scrolled to its edge. */
+  overscroll-behavior-y: none;
+  touch-action: pan-x pan-y;
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  line-height: 1.6;
+  background: var(--color-ink);
+  color: var(--color-ivory);
+  overscroll-behavior-y: none;
+  touch-action: pan-x pan-y;
+  /* iPhone notch / home-indicator safe areas so fixed headers, bottom nav
+     bars, and sheet footers never sit under the system UI. */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Prevent double-tap zoom and auto-zoom on buttons, links and form controls */
+button, a, input, select, textarea {
+  touch-action: manipulation;
+}
+
+.mono, .tabular-nums {
+  font-variant-numeric: tabular-nums;
+}
+
+.safe-top { padding-top: env(safe-area-inset-top); }
+.safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+/* Keyboard-only focus ring: visible and on-brand for a11y, but doesn't add
+   a ring on mouse/touch taps (which would look like a stray outline). */
+:focus-visible {
+  outline: 2px solid var(--color-aqua);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Respect the OS-level "reduce motion" accessibility setting: collapse all
+   durations to near-zero instead of disabling animations outright, so
+   state changes (skeletons finishing, drawers opening) still register
+   visually without the motion some users find uncomfortable. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: #1f2c47;
+  border-radius: 8px;
+  border: 2px solid var(--color-ink);
+}
+::-webkit-scrollbar-thumb:hover { background: #2c3c5e; }
+
+/* 3D depth utilities */
+.depth-card {
+  background: linear-gradient(155deg, #16203a 0%, #101729 100%);
+  border: 1px solid rgba(120, 140, 180, 0.08);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.05) inset,
+    0 -20px 40px rgba(0,0,0,0.25) inset,
+    0 22px 48px -18px rgba(0,0,0,0.7),
+    0 4px 12px -4px rgba(0,0,0,0.5);
+}
+
+.depth-soft {
+  background: linear-gradient(160deg, #14213b 0%, #0e1626 100%);
+  border: 1px solid rgba(120, 140, 180, 0.07);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.04) inset,
+    0 16px 34px -16px rgba(0,0,0,0.6);
+}
+
+.depth-raised {
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.12) inset,
+    0 10px 22px -8px rgba(0,0,0,0.55),
+    0 2px 5px rgba(0,0,0,0.4);
+}
+
+.glass {
+  background: rgba(20, 30, 54, 0.55);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  border: 1px solid rgba(140, 160, 200, 0.1);
+}
+
+.gold-text {
+  background: linear-gradient(135deg, #f6dd9b 0%, #e9c46a 40%, #c9963b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.aqua-text {
+  background: linear-gradient(135deg, #6ff2dc 0%, #38e0c8 50%, #11a892 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(120,140,180,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(120,140,180,0.05) 1px, transparent 1px);
+  background-size: 38px 38px;
+}
+
+.glow-gold { box-shadow: 0 0 0 1px rgba(233,196,106,0.3), 0 8px 30px -6px rgba(233,196,106,0.35); }
+.glow-aqua { box-shadow: 0 0 0 1px rgba(56,224,200,0.3), 0 8px 30px -6px rgba(56,224,200,0.35); }
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-14px) rotate(2deg); }
+}
+.animate-float-slow { animation: float-slow 7s ease-in-out infinite; }
+
+@keyframes pulse-ring {
+  0% { transform: scale(0.9); opacity: 0.7; }
+  100% { transform: scale(1.8); opacity: 0; }
+}
+.pulse-ring { animation: pulse-ring 2.2s ease-out infinite; }
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.shimmer {
+  background: linear-gradient(90deg, rgba(255,255,255,0.02), rgba(255,255,255,0.08), rgba(255,255,255,0.02));
+  background-size: 200% 100%;
+  animation: shimmer 1.6s infinite;
+}
+
+@keyframes pulse-fast {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.55; }
+}
+.animate-pulse-fast { animation: pulse-fast 1.6s ease-in-out infinite; }
+
+.tilt-hover {
+  transition: transform 0.35s cubic-bezier(.2,.8,.2,1), box-shadow 0.35s;
+  transform-style: preserve-3d;
+}
+.tilt-hover:hover {
+  transform: translateY(-4px) perspective(900px) rotateX(2deg);
+}
+
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes slide-up-fade {
+  0% { opacity: 0; transform: translateY(12px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up-fade {
+  animation: slide-up-fade 350ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Light-canvas shimmer for PublicStore skeleton loading grid.
+   Same keyframe as .shimmer but sweeps over a warm off-white surface
+   instead of the dark panel palette. */
+.shimmer-light {
+  background: linear-gradient(90deg, #f0ede8, #e8e4de, #f0ede8);
+  background-size: 200% 100%;
+  animation: shimmer 1.6s var(--ease-in-out, ease-in-out) infinite;
+}
+
+/* =========================================================================
+   DESKTOP VIEW OVERRIDE: FORCE MOBILE-COMPACT MODE
+   Neutralizes Chrome's "Request Desktop Site" artificial viewport expansion.
+   ========================================================================= */
+html.force-mobile-view aside {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  height: 100vh !important;
+  z-index: 40 !important;
+}
+
+html.force-mobile-view aside.-translate-x-full {
+  transform: translateX(-100%) !important;
+}
+
+html.force-mobile-view aside.translate-x-0 {
+  transform: translateX(0) !important;
+}
+
+html.force-mobile-view .lg\:hidden {
+  display: flex !important;
+}
+
+html.force-mobile-view button.lg\:hidden {
+  display: flex !important;
+}
+
+html.force-mobile-view div.bg-black\/50.lg\:hidden {
+  display: block !important;
+}
+
+html.force-mobile-view .hidden.lg\:flex {
+  display: none !important;
+}
+
+html.force-mobile-view .hidden.lg\:block {
+  display: none !important;
+}
+
+html.force-mobile-view .lg\:grid-cols-3,
+html.force-mobile-view .lg\:grid-cols-4 {
+  grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+}
+
+html.force-mobile-view .lg\:col-span-1,
+html.force-mobile-view .lg\:col-span-2,
+html.force-mobile-view .lg\:col-span-3 {
+  grid-column: span 1 / span 1 !important;
+}
+
+/* =========================================================================
+   GENUINE DESKTOP VIEW PRESENTATION (FORCED WIDESCREEN ON ALL DEVICES)
+   ========================================================================= */
+html.desktop-view-active {
+  min-width: 1180px !important;
+  overflow-x: auto !important;
+}
+
+html.desktop-view-active body {
+  min-width: 1180px !important;
+}
+
+html.desktop-view-active aside {
+  position: sticky !important;
+  top: 0 !important;
+  transform: translateX(0) !important;
+  display: flex !important;
+  width: 270px !important;
+}
+
+html.desktop-view-active .lg\:hidden {
+  display: none !important;
+}
+
+html.desktop-view-active .hidden.lg\:flex {
+  display: flex !important;
+}
+
+html.desktop-view-active .hidden.lg\:block {
+  display: block !important;
+}
+
+html.desktop-view-active .lg\:grid-cols-3 {
+  grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+}
+
+html.desktop-view-active .sm\:grid-cols-2 {
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+}
+
+html.desktop-view-active .sm\:grid-cols-4 {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+/* =========================================================================
+   AKAI LIVE AUDIT LASER SCAN & HUD ANIMATIONS (ZERO BLUR - GPU ACCELERATED 60FPS)
+   ========================================================================= */
+@keyframes akai-laser-sweep {
+  0% {
+    transform: translate3d(0, 2vh, 0);
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate3d(0, 95vh, 0);
+    opacity: 0.5;
+  }
+}
+
+@keyframes akai-border-pulse {
+  0%, 100% {
+    box-shadow: inset 0 0 15px rgba(16, 185, 129, 0.3), 0 0 18px rgba(16, 185, 129, 0.3);
+    border-color: rgba(52, 211, 153, 0.6);
+  }
+  50% {
+    box-shadow: inset 0 0 25px rgba(16, 185, 129, 0.6), 0 0 30px rgba(16, 185, 129, 0.6);
+    border-color: rgba(16, 185, 129, 0.9);
+  }
+}
+
+.akai-laser-line {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  will-change: transform;
+  transform: translate3d(0, 0, 0);
+  background: linear-gradient(90deg, transparent 0%, rgba(52, 211, 153, 0.7) 15%, #34d399 50%, rgba(52, 211, 153, 0.7) 85%, transparent 100%);
+  box-shadow: 0 0 14px 2px rgba(16, 185, 129, 0.9), 0 0 28px 5px rgba(52, 211, 153, 0.5);
+  animation: akai-laser-sweep 1.8s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
+  pointer-events: none;
+  z-index: 45;
+}
+
+.akai-scan-border-glow {
+  border: 2px solid rgba(16, 185, 129, 0.8);
+  animation: akai-border-pulse 2s infinite;
+  pointer-events: none;
+}
+
+.akai-hud-corner {
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-color: #34d399;
+  pointer-events: none;
+  z-index: 46;
+}
+.akai-hud-corner.tl { top: 12px; left: 12px; border-top: 3px solid #34d399; border-left: 3px solid #34d399; border-top-left-radius: 6px; }
+.akai-hud-corner.tr { top: 12px; right: 12px; border-top: 3px solid #34d399; border-right: 3px solid #34d399; border-top-right-radius: 6px; }
+.akai-hud-corner.bl { bottom: 12px; left: 12px; border-bottom: 3px solid #34d399; border-left: 3px solid #34d399; border-bottom-left-radius: 6px; }
+.akai-hud-corner.br { bottom: 12px; right: 12px; border-bottom: 3px solid #34d399; border-right: 3px solid #34d399; border-bottom-right-radius: 6px; }
+
+/* =========================================================================
+   AKAI AUDIT REPORT PRINT / PDF STYLING (EXACT 1-PAGE COMPACT A4 LAYOUT)
+   ========================================================================= */
+@media print {
+  html, body {
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    height: 100% !important;
+    overflow: hidden !important;
+  }
+
+  /* Hide app header, sidebar, dashboard main pages so ZERO background leaks */
+  header,
+  aside,
+  main,
+  nav,
+  .no-print {
+    display: none !important;
+    visibility: hidden !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .akai-modal-wrapper {
+    position: fixed !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100vw !important;
+    height: 100vh !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    overflow: hidden !important;
+    background: #ffffff !important;
+    z-index: 999999 !important;
+  }
+
+  #akai-printable-report {
+    position: static !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    max-height: none !important;
+    background: #ffffff !important;
+    color: #0f172a !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 2mm 4mm !important;
+    margin: 0 !important;
+    box-sizing: border-box !important;
+  }
+
+  .print-header {
+    background: #f8fafc !important;
+    border-bottom: 2px solid #e2e8f0 !important;
+    padding: 6px 10px !important;
+  }
+
+  .print-body {
+    padding: 6px 0 !important;
+  }
+
+  .print-section {
+    break-inside: avoid !important;
+    page-break-inside: avoid !important;
+    margin-bottom: 6px !important;
+  }
+
+  #akai-printable-report * {
+    color: #0f172a !important;
+    text-shadow: none !important;
+  }
+
+  #akai-printable-report .text-white {
+    color: #0f172a !important;
+  }
+  #akai-printable-report .text-slate-300,
+  #akai-printable-report .text-slate-400,
+  #akai-printable-report .text-slate-500 {
+    color: #475569 !important;
+  }
+  #akai-printable-report .border-slate-800,
+  #akai-printable-report .border-emerald-500\/40,
+  #akai-printable-report .border-emerald-500\/30,
+  #akai-printable-report .border-emerald-500\/20 {
+    border-color: #cbd5e1 !important;
+  }
+  #akai-printable-report .bg-\[\#0c1626\],
+  #akai-printable-report .bg-slate-900\/60,
+  #akai-printable-report .bg-gradient-to-br {
+    background: #f8fafc !important;
+    border: 1px solid #e2e8f0 !important;
+  }
+
+  @page {
+    size: A4 portrait;
+    margin: 4mm 5mm;
+  }
+}
+
+
+
+

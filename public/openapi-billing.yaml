@@ -1,0 +1,97 @@
+openapi: 3.1.0
+info:
+  title: AK-LOGIC-AI-GST Billing Account
+  description: >
+    Lets a merchant check and correct their own GST billing account details,
+    and look up their invoices. Every request is scoped to the merchant that
+    owns the access token used to authenticate — no merchant can see or
+    change another merchant's data.
+  version: 1.0.0
+servers:
+  - url: https://gst.ak-logicai.in/api/openai
+    description: Production API Server
+paths:
+  /account:
+    get:
+      operationId: getAccountInfo
+      summary: Get the merchant's own billing account details (GSTIN, PAN, bank, branding, plan).
+      responses:
+        '200':
+          description: Account details
+        '401':
+          description: Invalid or missing access token
+    patch:
+      operationId: updateAccountInfo
+      summary: Correct/update one or more fields on the merchant's own account.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                shopName: { type: string }
+                ownerName: { type: string }
+                legalName: { type: string }
+                tradeName: { type: string }
+                businessType: { type: string }
+                email: { type: string }
+                phone: { type: string }
+                address: { type: string }
+                state: { type: string }
+                city: { type: string }
+                pincode: { type: string }
+                gstin: { type: string }
+                pan: { type: string }
+                bankName: { type: string }
+                accountType: { type: string }
+                accountNumber: { type: string }
+                ifsc: { type: string }
+                upiId: { type: string }
+                brandName: { type: string }
+                brandColor: { type: string }
+                invoicePrefix: { type: string }
+      responses:
+        '200':
+          description: Updated account
+        '400':
+          description: No valid fields provided
+        '401':
+          description: Invalid or missing access token
+  /invoices:
+    get:
+      operationId: listRecentInvoices
+      summary: List the merchant's most recent invoices (summary view).
+      parameters:
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 10, maximum: 50 }
+      responses:
+        '200':
+          description: List of invoices
+        '401':
+          description: Invalid or missing access token
+  /invoice:
+    get:
+      operationId: getInvoiceDetail
+      summary: Get full details of one invoice, including line items and tax breakdown.
+      parameters:
+        - name: id
+          in: query
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Invoice detail
+        '400':
+          description: Missing or invalid invoice id
+        '401':
+          description: Invalid or missing access token
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+security:
+  - bearerAuth: []

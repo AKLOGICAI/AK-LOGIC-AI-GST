@@ -1,0 +1,107 @@
+name: Build Android APK
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-apk:
+    name: Build Standalone Release APK v2.5
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Java JDK (Temurin 21)
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
+      - name: Setup Node.js (v20)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+          cache-dependency-path: android/package-lock.json
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+
+      - name: Install Android SDK Packages & NDK
+        run: |
+          yes | sdkmanager --install "ndk;27.1.12297006" "cmake;3.22.1" "platforms;android-35" "build-tools;35.0.0"
+
+      - name: Install Android Project Dependencies
+        working-directory: ./android
+        run: npm ci
+
+      - name: Run Expo Prebuild (Generate Native Android Project)
+        working-directory: ./android
+        run: npx expo prebuild --platform android --clean
+
+      - name: Set APK version to v2.6 & Configure Release Signing
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/android/app/build.gradle")
+          s = p.read_text()
+          s = s.replace("versionCode 1", "versionCode 8", 1)
+          s = s.replace('versionName "1.0.0"', 'versionName "2.6.0"', 1)
+          p.write_text(s)
+          print("Patched Android versionCode=8, versionName=2.6.0")
+          PY
+          grep -n "versionCode\|versionName" android/android/app/build.gradle
+
+      - name: Make Gradle Wrapper Executable
+        run: chmod +x android/android/gradlew
+
+      - name: Build Android Standalone Release APK
+        working-directory: ./android/android
+        run: ./gradlew assembleRelease --no-daemon --stacktrace
+
+      - name: Stage APK Output
+        run: |
+          mkdir -p build-output
+          cp android/android/app/build/outputs/apk/release/app-release.apk build-output/AK-LOGIC-AI-GST-v2.6.0-standalone.apk
+          ls -lh build-output/
+
+      - name: Upload APK as Workflow Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AK-LOGIC-AI-GST-v2.6.0-standalone-APK
+          path: build-output/AK-LOGIC-AI-GST-v2.6.0-standalone.apk
+          retention-days: 30
+
+      - name: Create or Update GitHub Release
+        uses: softprops/action-gh-release@v2
+        if: github.ref == 'refs/heads/main'
+        with:
+          tag_name: v2.6.0-standalone
+          name: "AK-LOGIC AI GST v2.6 Standalone APK"
+          draft: false
+          prerelease: false
+          body: |
+            ## 📱 AK-LOGIC AI GST Mobile Client v2.6 (Sarvam AI Voice & Copilot Release)
+
+            **100% Standalone Production APK** with Sarvam AI Indic Voice In/Out & Rich Markdown!
+
+            ### 🚀 Parity Features & Bug Fixes:
+            - 🎙️ **Sarvam AI Voice Billing (Mic):** Tap mic to speak in Hindi/English/Hinglish with instant STT transcription.
+            - 🔊 **Sarvam AI Read Aloud (Speaker):** Tap speaker on any AI message bubble to hear natural Indian voice response.
+            - ✨ **Rich Markdown & Clean Bold:** Automatic formatted rendering in APK without raw asterisks.
+            - ⚡ **AKC PIN Fast Invoicing Fix:** Instant request persistence + atomic approval matching web app `store.createRequest`.
+            - 🧾 **Direct 4-Step Tax Invoice Builder:** Auto-generates valid backend billing request before invoice creation.
+            - 🎨 **All 18 Module Vector Icons:** Complete `Ionicons` mapping in More Screen (0 missing glyphs).
+            - 🔄 **Invoices History Focus Auto-Refresh:** Instant list update via `useFocusEffect` on tab focus.
+          files: build-output/AK-LOGIC-AI-GST-v2.6.0-standalone.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+

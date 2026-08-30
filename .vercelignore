@@ -1,0 +1,4 @@
+# structure.txt is a generated project-tree dump (1.4MB) committed at the
+# repo root — it has no runtime value and only adds dead weight to the
+# deploy bundle. Flagged in the security/performance audit (§5).
+structure.txt
