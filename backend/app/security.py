@@ -5,16 +5,15 @@ from datetime import datetime, timedelta
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
 from jose import JWTError, jwt
-from passlib.context import CryptContext
+import bcrypt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from .config import settings
 from .database import get_db
 
-pwd = CryptContext(schemes=["bcrypt"], deprecated="auto")
 bearer = HTTPBearer(auto_error=False)
 
-# bcrypt hashes produced by passlib always start with one of these prefixes.
+# bcrypt hashes always start with one of these prefixes.
 _BCRYPT_PREFIXES = ("$2a$", "$2b$", "$2y$")
 
 # Mirrors src/lib/hash.ts exactly: sha256(`${MPIN_SALT}:${phone}:${mpin}`).
@@ -26,11 +25,15 @@ _LEGACY_MPIN_SALT = "aklogic.mpin.v1"
 
 
 def hash_mpin(mpin: str) -> str:
-    return pwd.hash(mpin)
+    return bcrypt.hashpw(mpin.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_mpin(mpin: str, hashed: str) -> bool:
-    return pwd.verify(mpin, hashed)
+    try:
+        return bcrypt.checkpw(mpin.encode("utf-8"), hashed.encode("utf-8"))
+    except Exception:
+        return False
+
 
 
 def _legacy_sha256_digest(phone: str, mpin: str) -> str:
